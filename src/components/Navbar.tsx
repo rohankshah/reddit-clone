@@ -1,4 +1,5 @@
 import React from "react";
+import { useAppDispatch } from "../app/hooks";
 import {
   Box,
   CssBaseline,
@@ -15,16 +16,22 @@ import {
   Drawer,
 } from "@mui/material";
 import MenuIcon from "../assets/menu-icon.svg";
+import { logoutUser } from "../features/auth/authSlice";
 
 const drawerWidth = 240;
-const navItems = ["Feed", "Users", "Profile"];
+const navItems = ["Feed", "Users", "Profile", "Logout"];
 
 const Navbar = () => {
+  const dispatch = useAppDispatch();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
+
+  function handleLogout() {
+    dispatch(logoutUser());
+  }
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
@@ -74,7 +81,11 @@ const Navbar = () => {
             </Typography>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
               {navItems.map((item) => (
-                <Button key={item} sx={{ color: "#fff" }}>
+                <Button
+                  key={item}
+                  sx={{ color: "#fff" }}
+                  onClick={item === "Logout" ? () => handleLogout() : () => {}}
+                >
                   {item}
                 </Button>
               ))}

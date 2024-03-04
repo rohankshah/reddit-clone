@@ -9,6 +9,7 @@ import "./App.css";
 
 import LoginSignup from "./pages/LoginSignup";
 import Feed from "./pages/Feed";
+import Post from "./pages/Post";
 import { getCurrUser, logInUser } from "./features/auth/authSlice";
 
 const App = () => {
@@ -50,7 +51,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={currUser ? <Feed /> : <LoginSignup />} />
             <Route path="/feed" element={<Feed />} />
-            <Route path="/post/:id" element={<div>Post</div>} />
+            <Route path="/post/:id" element={<Post />} />
           </Routes>
         </BrowserRouter>
       </Box>

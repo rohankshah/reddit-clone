@@ -14,13 +14,8 @@ import {
 import moment from "moment";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import {
-  createNewPost,
-  fetchAllPosts,
-  votePost,
-} from "../features/post/postSlice";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
+import { createNewPost, fetchAllPosts } from "../features/post/postSlice";
+import CommentScore from "../components/CommentScore";
 
 const style = {
   position: "absolute",
@@ -39,7 +34,6 @@ const Feed = () => {
   const dispatch = useAppDispatch();
   const postArr = useAppSelector((state) => state.post.postInfo);
   const fetchPostLoading = useAppSelector((state) => state.post.loading);
-  const currUserId = useAppSelector((state) => state.auth.userInfo?.uid);
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -51,10 +45,6 @@ const Feed = () => {
   useEffect(() => {
     dispatch(fetchAllPosts());
   }, [dispatch]);
-
-  useEffect(() => {
-    console.log(postArr);
-  }, [postArr]);
 
   function handleNewPostCreate() {
     dispatch(createNewPost({ title: newPostTitle, body: newPostBody }));
@@ -188,60 +178,7 @@ const Feed = () => {
                       <Typography>{post.body.slice(0, 250) + "..."}</Typography>
                     </CardContent>
                     <CardActions>
-                      <Box
-                        onClick={(e) => e.stopPropagation()}
-                        sx={{
-                          display: "flex",
-                          flexDirection: { md: "column", xs: "row" },
-                          marginLeft: { md: "10px" },
-                          width: { md: "2.5rem" },
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          gap: 2,
-                          borderRadius: 2,
-                          border: "1px solid black",
-                          padding: { md: "5px", xs: "2px 5px" },
-                          cursor: "default",
-                        }}
-                      >
-                        <AddIcon
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            dispatch(
-                              votePost({
-                                postId: post.postId,
-                                type: "upvote",
-                                currPostObj: { ...post },
-                              })
-                            );
-                          }}
-                          color={
-                            post.upvoteArr.includes(currUserId as string)
-                              ? "primary"
-                              : "inherit"
-                          }
-                          fontSize="small"
-                        />
-                        <Typography>{post.score}</Typography>
-                        <RemoveIcon
-                          onClick={(e) => {
-                            e.stopPropagation;
-                            dispatch(
-                              votePost({
-                                postId: post.postId,
-                                type: "downvote",
-                                currPostObj: { ...post },
-                              })
-                            );
-                          }}
-                          color={
-                            post.downvoteArr.includes(currUserId as string)
-                              ? "error"
-                              : "inherit"
-                          }
-                          fontSize="small"
-                        />
-                      </Box>
+                      <CommentScore post={post} />
                     </CardActions>
                   </Card>
                 );

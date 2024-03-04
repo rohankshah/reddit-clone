@@ -5,23 +5,11 @@ import {
   addDoc,
   getDocs,
   serverTimestamp,
-  Timestamp,
   getDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
-
-interface PostObj {
-  title: string;
-  body: string;
-  createdByUid: string;
-  postId: string;
-  published: Timestamp;
-  displayName: string;
-  score: number;
-  upvoteArr: string[];
-  downvoteArr: string[];
-}
+import { PostObj } from "../../types/types";
 
 interface PostState {
   postInfo: PostObj[] | undefined;
@@ -88,6 +76,19 @@ export const fetchAllPosts = createAsyncThunk(
       return JSON.stringify(postsArr);
     } catch (error) {
       return error;
+    }
+  }
+);
+
+export const fetchExistingPost = createAsyncThunk(
+  "post/fetchExistingPost",
+  async (postId: string) => {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    if (postSnap.exists()) {
+      return postSnap.data();
+    } else {
+      return undefined;
     }
   }
 );
@@ -161,11 +162,9 @@ export const votePost = createAsyncThunk(
           );
           currPostObj.score = (currPostObj.score ?? 0) + 1;
         }
-        console.log(currPostObj);
 
         try {
           await updateDoc(creatorNameRef, { ...currPostObj });
-          console.log("Post updated successfully");
           return JSON.stringify({ ...currPostObj, postId: postId });
         } catch (error) {
           console.error("Error updating post:", error);

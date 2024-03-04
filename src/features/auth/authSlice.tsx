@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   db,
+  signOut,
 } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import type { RootState } from "../../app/store";
@@ -60,6 +61,10 @@ export const loginExistingUser = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk("auth/logoutUser", () => {
+  return signOut(currAuth);
+});
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -92,6 +97,12 @@ export const authSlice = createSlice({
       state.loading = false;
       state.error = true;
       state.errorMsg = action.error.message;
+    });
+    builders.addCase(logoutUser.fulfilled, (state) => {
+      state.userInfo = null;
+      state.loading = false;
+      state.error = false;
+      state.errorMsg = "";
     });
   },
 });
