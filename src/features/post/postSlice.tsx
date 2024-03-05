@@ -48,6 +48,7 @@ export const createNewPost = createAsyncThunk(
         score: 0,
         upvoteArr: [],
         downvoteArr: [],
+        replies: [],
       });
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -112,6 +113,8 @@ export const votePost = createAsyncThunk(
           type === "upvote" &&
           !currPostObj?.upvoteArr.includes(currUid as string)
         ) {
+          console.log(currPostObj);
+          console.log("1");
           // check if already downvoted, if yes then remove
           if (currPostObj?.downvoteArr.includes(currUid as string)) {
             let tempArr = currPostObj?.downvoteArr;
@@ -129,6 +132,7 @@ export const votePost = createAsyncThunk(
           type === "downvote" &&
           !currPostObj?.downvoteArr.includes(currUid as string)
         ) {
+          console.log("2");
           // check if already upvoted, if yes then remove
           if (currPostObj?.upvoteArr.includes(currUid as string)) {
             let tempArr = currPostObj?.upvoteArr;
@@ -149,6 +153,7 @@ export const votePost = createAsyncThunk(
           type === "upvote" &&
           currPostObj?.upvoteArr.includes(currUid as string)
         ) {
+          console.log("3");
           currPostObj.upvoteArr = currPostObj.upvoteArr.filter(
             (ele: string) => ele !== currUid
           );
@@ -157,6 +162,7 @@ export const votePost = createAsyncThunk(
           type === "downvote" &&
           currPostObj?.downvoteArr.includes(currUid as string)
         ) {
+          console.log("4");
           currPostObj.downvoteArr = currPostObj.downvoteArr.filter(
             (ele: string) => ele !== currUid
           );
@@ -164,6 +170,7 @@ export const votePost = createAsyncThunk(
         }
 
         try {
+          console.log(currPostObj);
           await updateDoc(creatorNameRef, { ...currPostObj });
           return JSON.stringify({ ...currPostObj, postId: postId });
         } catch (error) {

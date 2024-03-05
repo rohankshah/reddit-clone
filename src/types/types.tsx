@@ -10,4 +10,12 @@ export interface PostObj {
   score: number;
   upvoteArr: string[];
   downvoteArr: string[];
+  replies: string[];
+}
+
+export interface CommentObj {
+  body: string;
+  level: number;
+  replies: string[];
+  timestamp: Timestamp;
 }

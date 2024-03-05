@@ -1,13 +1,14 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../app/hooks";
 import { Box, Grid, Typography } from "@mui/material";
+import { PostObj } from "../types/types";
+import { fetchExistingPost } from "../features/post/postSlice";
 
 import Navbar from "../components/Navbar";
 import CommentScore from "../components/CommentScore";
-import { fetchExistingPost } from "../features/post/postSlice";
-import { useParams } from "react-router-dom";
-import { PostObj } from "../types/types";
+import NestedComments from "../components/NestedComments";
 
 const Post = () => {
   const dispatch = useAppDispatch();
@@ -44,7 +45,7 @@ const Post = () => {
           width: "100%",
         }}
       >
-        <Grid item md={5.5} xs={12} sx={{ width: "100%" }}>
+        <Grid item md={9} lg={7} xs={12} sx={{ width: "100%" }}>
           {post && (
             <Box
               sx={{
@@ -95,6 +96,12 @@ const Post = () => {
                   <Typography>{post.body}</Typography>
                 </Box>
               </Box>
+            </Box>
+          )}
+          {post && (
+            <Box sx={{ mt: 3 }}>
+              <Typography sx={{ mb: 1 }}>Comments:</Typography>
+              <NestedComments replies={post?.replies} />
             </Box>
           )}
         </Grid>
