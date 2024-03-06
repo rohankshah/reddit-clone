@@ -1,9 +1,9 @@
 import { Button, TextField, Box } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useAppDispatch } from "../app/hooks";
-import { CommentObj } from "../types/types";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import { fetchAllComments } from "../features/comment/commentSlice";
+import Comment from "./Comment";
 
 interface NestedCommentsProps {
   replies: string[];
@@ -11,14 +11,11 @@ interface NestedCommentsProps {
 
 const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
   const dispatch = useAppDispatch();
-
-  const [comments, setComments] = useState<CommentObj>();
+  const comments = useAppSelector((state) => state.comment.comments);
 
   useEffect(() => {
     if (replies.length > 0) {
-      dispatch(fetchAllComments(replies))
-        .unwrap()
-        .then((data) => setComments(JSON.parse(data)));
+      dispatch(fetchAllComments(replies));
     }
   }, []);
 
@@ -41,6 +38,27 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
         >
           Post
         </Button>
+      </Box>
+      <Box
+        sx={{
+          mt: 2,
+        }}
+      >
+        {comments.length > 0 &&
+          comments.map((comment) => (
+            <Box
+              key={comment.createdByUid}
+              style={{
+                marginBottom: "1em",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "end",
+              }}
+            >
+              <Comment comment={comment} />
+            </Box>
+          ))}
       </Box>
     </>
   );

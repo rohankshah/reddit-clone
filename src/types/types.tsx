@@ -16,6 +16,9 @@ export interface PostObj {
 export interface CommentObj {
   body: string;
   level: number;
-  replies: string[];
+  replies: (string | CommentObj)[];
   timestamp: Timestamp;
+  createdByUid: string;
+  displayName?: string;
+  commentUid?: string;
 }
