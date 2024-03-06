@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import moment from "moment";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, Divider } from "@mui/material";
 import { CommentObj } from "../types/types";
-import { useAppDispatch } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import { createNewReply } from "../features/comment/commentSlice";
 
@@ -22,6 +22,9 @@ function getWidthForLevel(level: number) {
 
 const Comment: React.FC<CommentProps> = ({ comment }) => {
   const dispatch = useAppDispatch();
+
+  const currUid = useAppSelector((state) => state.auth.userInfo?.uid);
+
   const [replyToggle, setReplyToggle] = useState(false);
   const [newComment, setNewComment] = useState<string>("");
 
@@ -34,6 +37,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
       })
     );
     setNewComment("");
+    setReplyToggle(false);
   }
 
   const visible = { visibility: comment.level === 3 ? "hidden" : "visible" };
@@ -48,9 +52,24 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
         }}
       >
         <Box sx={{ display: "flex", gap: 5, alignItems: "center", mb: 1 }}>
-          <Typography sx={{ fontWeight: "bold" }}>
-            {comment.displayName}
-          </Typography>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Typography sx={{ fontWeight: "bold" }}>
+              {comment.displayName}
+            </Typography>
+            {comment.createdByUid === currUid && (
+              <Typography
+                variant="body2"
+                sx={{
+                  backgroundColor: "primary.main",
+                  color: "white",
+                  padding: "0px 4px",
+                  borderRadius: "8px",
+                }}
+              >
+                You
+              </Typography>
+            )}
+          </Box>
           <Typography variant="body2">
             {moment(moment.unix(comment.timestamp.seconds)).fromNow()}
           </Typography>

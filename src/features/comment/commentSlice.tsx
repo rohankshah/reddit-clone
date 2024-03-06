@@ -100,7 +100,6 @@ export const createNewReply = createAsyncThunk(
     { getState }
   ) => {
     const state = getState();
-    console.log(state);
     const allComments = (state as RootState).comment.comments;
     const newAllComments = JSON.parse(JSON.stringify(allComments));
     try {
@@ -128,10 +127,58 @@ export const createNewReply = createAsyncThunk(
   }
 );
 
+// async function addCommentToPostObj(postInfo: PostObj[], postId: string, newComment: CommentObj) {
+//   postInfo.map(post => {
+//     if (post.postId === postId) {
+//       post.replies.push(newComment)
+//     } else {
+//       return post
+//     }
+//   })
+// }
+
+export const createNewComment = createAsyncThunk(
+  "comment/createNewComment",
+  async (
+    { comment, postId }: { comment: string; postId: string },
+    { dispatch }
+  ) => {
+    try {
+      const newCommentDoc = {
+        body: comment,
+        level: 1,
+        replies: [],
+        timestamp: Timestamp.fromDate(new Date()),
+        createdByUid: currAuth.currentUser?.uid as string,
+      };
+      const dataRef = await addDoc(collection(db, "comments"), newCommentDoc);
+      const postRef = doc(db, "posts", postId);
+      await updateDoc(postRef, {
+        replies: arrayUnion(dataRef.id),
+      });
+      dispatch(
+        addNewComment(
+          JSON.stringify({
+            ...newCommentDoc,
+            displayName: currAuth.currentUser?.displayName,
+            commentUid: dataRef.id,
+          })
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const commentSlice = createSlice({
   name: "comment",
   initialState,
-  reducers: {},
+  reducers: {
+    addNewComment(state, action) {
+      state.comments.push(JSON.parse(action.payload));
+    },
+  },
   extraReducers: (builders) => {
     builders.addCase(fetchAllComments.pending, (state) => {
       state.loading = true;
@@ -149,5 +196,7 @@ export const commentSlice = createSlice({
     });
   },
 });
+
+export const { addNewComment } = commentSlice.actions;
 
 export default commentSlice.reducer;

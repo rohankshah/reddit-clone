@@ -21,7 +21,6 @@ const Post = () => {
       dispatch(fetchExistingPost(postId.id))
         .unwrap()
         .then((data) => {
-          console.log(data);
           setPost(data as PostObj);
         });
     }
@@ -99,9 +98,14 @@ const Post = () => {
             </Box>
           )}
           {post && (
-            <Box sx={{ mt: 3 }}>
+            <Box
+              sx={{
+                mt: 3,
+                padding: { md: "2rem", xs: "1rem 1rem" },
+              }}
+            >
               <Typography sx={{ mb: 1 }}>Comments:</Typography>
-              <NestedComments replies={post?.replies} />
+              <NestedComments replies={post?.replies} postId={post.postId} />
             </Box>
           )}
         </Grid>

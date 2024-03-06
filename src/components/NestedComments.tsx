@@ -1,17 +1,23 @@
 import { Button, TextField, Box } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 
-import { fetchAllComments } from "../features/comment/commentSlice";
+import {
+  createNewComment,
+  fetchAllComments,
+} from "../features/comment/commentSlice";
 import Comment from "./Comment";
 
 interface NestedCommentsProps {
   replies: string[];
+  postId: string;
 }
 
-const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
+const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) => state.comment.comments);
+
+  const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
     if (replies.length > 0) {
@@ -19,7 +25,13 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
     }
   }, []);
 
-  useEffect(() => console.log(comments), [comments]);
+  // useEffect(() => console.log(comments), [comments]);
+
+  function handleAddNewComment() {
+    console.log(newComment);
+    dispatch(createNewComment({ comment: newComment, postId: postId }));
+    setNewComment("");
+  }
 
   return (
     <>
@@ -31,10 +43,19 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
           gap: 1,
         }}
       >
-        <TextField multiline minRows={4} type="text" sx={{ width: "100%" }} />
+        <TextField
+          multiline
+          minRows={3}
+          type="text"
+          sx={{ width: "100%" }}
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+        />
         <Button
           variant="contained"
+          size="small"
           sx={{ color: "white", width: "fit-content" }}
+          onClick={() => handleAddNewComment()}
         >
           Post
         </Button>
@@ -47,7 +68,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies }) => {
         {comments.length > 0 &&
           comments.map((comment) => (
             <Box
-              key={comment.createdByUid}
+              key={comment.commentUid}
               style={{
                 marginBottom: "1em",
                 width: "100%",
