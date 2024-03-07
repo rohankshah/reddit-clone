@@ -1,10 +1,11 @@
-import { Button, TextField, Box } from "@mui/material";
+import { Button, TextField, Box, Modal, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import {
   createNewComment,
   fetchAllComments,
+  deleteExistingComment,
 } from "../features/comment/commentSlice";
 import Comment from "./Comment";
 
@@ -17,8 +18,10 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) => state.comment.comments);
   const commentsLoading = useAppSelector((state) => state.comment.loading);
+  const [openDelete, setOpenDelete] = useState(false);
 
   const [newComment, setNewComment] = useState("");
+  const [deleteCommentId, setDeleteCommentId] = useState<string>("");
 
   useEffect(() => {
     if (replies.length > 0) {
@@ -26,16 +29,78 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
     }
   }, []);
 
-  // useEffect(() => console.log(comments), [comments]);
-
   function handleAddNewComment() {
-    console.log(newComment);
     dispatch(createNewComment({ comment: newComment, postId: postId }));
     setNewComment("");
   }
 
+  function handleDeleteCancel() {
+    setOpenDelete(false);
+  }
+
+  function handleSetDeleteCommentId(id: string) {
+    setDeleteCommentId(id);
+    setOpenDelete(true);
+  }
+
+  function handleCommentDelete() {
+    dispatch(deleteExistingComment({ commentId: deleteCommentId })).then(() =>
+      handleDeleteCancel()
+    );
+  }
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    px: 4,
+    py: 3,
+    borderRadius: 2,
+  };
+
   return (
     <>
+      <Modal
+        open={openDelete}
+        onClose={handleDeleteCancel}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            color={"error"}
+            sx={{ fontWeight: "bold" }}
+          >
+            Confirm Delete?
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Button
+              id="modal-modal-description"
+              sx={{ mt: 2, color: "white" }}
+              variant="contained"
+              size="small"
+              onClick={() => handleCommentDelete()}
+            >
+              Delete
+            </Button>
+            <Button
+              id="modal-modal-description"
+              sx={{ mt: 2 }}
+              variant="outlined"
+              size="small"
+              onClick={() => handleDeleteCancel()}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
       <Box
         sx={{
           display: "flex",
@@ -91,7 +156,10 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
                 alignItems: "end",
               }}
             >
-              <Comment comment={comment} />
+              <Comment
+                comment={comment}
+                setDeleteId={handleSetDeleteCommentId}
+              />
             </Box>
           ))}
       </Box>

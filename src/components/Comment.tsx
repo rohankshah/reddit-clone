@@ -6,12 +6,13 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import {
   createNewReply,
-  deleteExistingComment,
+  // deleteExistingComment,
   editExistingComment,
 } from "../features/comment/commentSlice";
 
 interface CommentProps {
   comment: CommentObj;
+  setDeleteId: (id: string) => void;
 }
 
 function getStylesForComment(level: number) {
@@ -36,7 +37,7 @@ function getStylesForComment(level: number) {
   }
 }
 
-const Comment: React.FC<CommentProps> = ({ comment }) => {
+const Comment: React.FC<CommentProps> = ({ comment, setDeleteId }) => {
   const dispatch = useAppDispatch();
 
   const currUid = useAppSelector((state) => state.auth.userInfo?.uid);
@@ -47,11 +48,11 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
   const [newComment, setNewComment] = useState<string>("");
   const [editComment, setEditComment] = useState<string>("");
 
-  function deleteComment() {
-    dispatch(
-      deleteExistingComment({ commentId: comment.commentUid as string })
-    );
-  }
+  // function deleteComment() {
+  //   dispatch(
+  //     deleteExistingComment({ commentId: comment.commentUid as string })
+  //   );
+  // }
 
   function handleAddNewComment() {
     dispatch(
@@ -173,7 +174,8 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
               cursor: "pointer",
               ...deleteVisible,
             }}
-            onClick={() => deleteComment()}
+            // onClick={() => deleteComment()}
+            onClick={() => setDeleteId(comment.commentUid as string)}
           >
             Delete
           </Typography>
@@ -226,6 +228,7 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
           <Comment
             key={(comment as CommentObj).commentUid}
             comment={comment as CommentObj}
+            setDeleteId={setDeleteId}
           />
         ))}
     </>
