@@ -2,13 +2,14 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../app/hooks";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Card, Grid, Typography } from "@mui/material";
 import { PostObj } from "../types/types";
 import { fetchExistingPost } from "../features/post/postSlice";
 
 import Navbar from "../components/Navbar";
 import CommentScore from "../components/CommentScore";
 import NestedComments from "../components/NestedComments";
+import BackButton from "../components/BackButton";
 
 const Post = () => {
   const dispatch = useAppDispatch();
@@ -40,18 +41,16 @@ const Post = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: { md: "2rem 0rem", xs: "1rem 1rem" },
+          padding: { md: "1rem 0rem", xs: "1rem 1rem" },
           width: "100%",
         }}
       >
         <Grid item md={9} lg={7} xs={12} sx={{ width: "100%" }}>
+          <BackButton />
           {post && (
-            <Box
+            <Card
               sx={{
                 width: "100%",
-                border: "2px",
-                borderColor: "secondary.main",
-                borderStyle: "solid",
                 borderRadius: 2,
                 padding: 3,
               }}
@@ -95,7 +94,7 @@ const Post = () => {
                   <Typography>{post.body}</Typography>
                 </Box>
               </Box>
-            </Box>
+            </Card>
           )}
           {post && (
             <Box

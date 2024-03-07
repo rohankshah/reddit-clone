@@ -50,8 +50,14 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={currUser ? <Feed /> : <LoginSignup />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/post/:id" element={<Post />} />
+            <Route
+              path="/feed"
+              element={currUser ? <Feed /> : <LoginSignup />}
+            />
+            <Route
+              path="/post/:id"
+              element={currUser ? <Post /> : <LoginSignup />}
+            />
           </Routes>
         </BrowserRouter>
       </Box>

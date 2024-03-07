@@ -85,6 +85,33 @@ function addCommentToParent(
   return false;
 }
 
+async function editCommentInState(
+  allComments: CommentObj[],
+  commentId: string,
+  type: string,
+  newBody?: string
+) {
+  for (let i = 0; i < allComments.length; i++) {
+    const comment = allComments[i];
+    if (comment.commentUid === commentId) {
+      if (type === "update") {
+        comment.body = newBody as string;
+      } else if (type === "delete") {
+        comment.deleted = true;
+      }
+      return;
+    }
+    if (comment.replies.length > 0) {
+      editCommentInState(
+        comment.replies as CommentObj[],
+        commentId,
+        type,
+        newBody
+      );
+    }
+  }
+}
+
 export const createNewReply = createAsyncThunk(
   "comment/createNewReply",
   async (
@@ -109,6 +136,7 @@ export const createNewReply = createAsyncThunk(
         replies: [],
         timestamp: Timestamp.fromDate(new Date()),
         createdByUid: currAuth.currentUser?.uid as string,
+        deleted: false,
       };
       const dataRef = await addDoc(collection(db, "comments"), newCommentDoc);
       const parentCommentRef = doc(db, "comments", parentComment);
@@ -127,16 +155,6 @@ export const createNewReply = createAsyncThunk(
   }
 );
 
-// async function addCommentToPostObj(postInfo: PostObj[], postId: string, newComment: CommentObj) {
-//   postInfo.map(post => {
-//     if (post.postId === postId) {
-//       post.replies.push(newComment)
-//     } else {
-//       return post
-//     }
-//   })
-// }
-
 export const createNewComment = createAsyncThunk(
   "comment/createNewComment",
   async (
@@ -150,6 +168,7 @@ export const createNewComment = createAsyncThunk(
         replies: [],
         timestamp: Timestamp.fromDate(new Date()),
         createdByUid: currAuth.currentUser?.uid as string,
+        deleted: false,
       };
       const dataRef = await addDoc(collection(db, "comments"), newCommentDoc);
       const postRef = doc(db, "posts", postId);
@@ -171,6 +190,41 @@ export const createNewComment = createAsyncThunk(
   }
 );
 
+export const editExistingComment = createAsyncThunk(
+  "comment/editExistingComment",
+  async (
+    { body, commentId }: { body: string; commentId: string },
+    { getState }
+  ) => {
+    const state = getState();
+    const allComments = JSON.parse(
+      JSON.stringify((state as RootState).comment.comments)
+    );
+    const existingCommentRef = doc(db, "comments", commentId);
+    await updateDoc(existingCommentRef, {
+      body: body,
+    });
+    await editCommentInState(allComments, commentId, "update", body);
+    return allComments;
+  }
+);
+
+export const deleteExistingComment = createAsyncThunk(
+  "comment/deleteExistingComment",
+  async ({ commentId }: { commentId: string }, { getState }) => {
+    const state = getState();
+    const allComments = JSON.parse(
+      JSON.stringify((state as RootState).comment.comments)
+    );
+    const existingCommentRef = doc(db, "comments", commentId);
+    await updateDoc(existingCommentRef, {
+      deleted: true,
+    });
+    await editCommentInState(allComments, commentId, "delete");
+    return allComments;
+  }
+);
+
 export const commentSlice = createSlice({
   name: "comment",
   initialState,
@@ -178,9 +232,13 @@ export const commentSlice = createSlice({
     addNewComment(state, action) {
       state.comments.push(JSON.parse(action.payload));
     },
+    replaceAllComments(state, action) {
+      state.comments = action.payload;
+    },
   },
   extraReducers: (builders) => {
     builders.addCase(fetchAllComments.pending, (state) => {
+      state.comments = [];
       state.loading = true;
     });
     builders.addCase(fetchAllComments.fulfilled, (state, action) => {
@@ -193,6 +251,12 @@ export const commentSlice = createSlice({
     });
     builders.addCase(createNewReply.fulfilled, (state, action) => {
       state.comments = JSON.parse(action.payload as string);
+    });
+    builders.addCase(editExistingComment.fulfilled, (state, action) => {
+      state.comments = action.payload;
+    });
+    builders.addCase(deleteExistingComment.fulfilled, (state, action) => {
+      state.comments = action.payload;
     });
   },
 });

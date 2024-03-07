@@ -1,22 +1,38 @@
 import React, { useState } from "react";
 import moment from "moment";
-import { Box, Button, TextField, Typography, Divider } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { CommentObj } from "../types/types";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 
-import { createNewReply } from "../features/comment/commentSlice";
+import {
+  createNewReply,
+  deleteExistingComment,
+  editExistingComment,
+} from "../features/comment/commentSlice";
 
 interface CommentProps {
   comment: CommentObj;
 }
 
-function getWidthForLevel(level: number) {
+function getStylesForComment(level: number) {
   if (level === 1) {
-    return "100%";
+    return { width: "100%" };
   } else if (level === 2) {
-    return "95%";
+    return {
+      width: "95%",
+      borderLeftStyle: "solid",
+      borderLeftSize: 1,
+      borderLeftColor: "#D3D3D3",
+      paddingLeft: "2.5%",
+    };
   } else if (level === 3) {
-    return "90%";
+    return {
+      width: "90%",
+      borderLeftStyle: "solid",
+      borderLeftSize: 1,
+      borderLeftColor: "#D3D3D3",
+      paddingLeft: "2.5%",
+    };
   }
 }
 
@@ -26,7 +42,16 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
   const currUid = useAppSelector((state) => state.auth.userInfo?.uid);
 
   const [replyToggle, setReplyToggle] = useState(false);
+  const [editToggle, setEditToggle] = useState(false);
+
   const [newComment, setNewComment] = useState<string>("");
+  const [editComment, setEditComment] = useState<string>("");
+
+  function deleteComment() {
+    dispatch(
+      deleteExistingComment({ commentId: comment.commentUid as string })
+    );
+  }
 
   function handleAddNewComment() {
     dispatch(
@@ -40,23 +65,52 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
     setReplyToggle(false);
   }
 
-  const visible = { visibility: comment.level === 3 ? "hidden" : "visible" };
+  function handleEditComment() {
+    dispatch(
+      editExistingComment({
+        body: editComment,
+        commentId: comment.commentUid as string,
+      })
+    );
+    setEditComment("");
+    setEditToggle(false);
+  }
+
+  function openEditComment() {
+    setEditComment(comment.body);
+    setEditToggle(true);
+  }
+
+  function closeEditComment() {
+    setEditComment("");
+    setEditToggle(false);
+  }
+
+  const visible = {
+    visibility: comment.level === 3 || comment.deleted ? "hidden" : "visible",
+  };
+  const deleteVisible = {
+    visibility:
+      comment.createdByUid === currUid && !comment.deleted
+        ? "visible"
+        : "hidden",
+  };
   return (
     <>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          width: getWidthForLevel(comment.level),
+          ...getStylesForComment(comment.level),
           mb: 1,
         }}
       >
         <Box sx={{ display: "flex", gap: 5, alignItems: "center", mb: 1 }}>
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Typography sx={{ fontWeight: "bold" }}>
-              {comment.displayName}
+              {comment.deleted ? "[deleted]" : comment.displayName}
             </Typography>
-            {comment.createdByUid === currUid && (
+            {comment.createdByUid === currUid && !comment.deleted && (
               <Typography
                 variant="body2"
                 sx={{
@@ -74,43 +128,90 @@ const Comment: React.FC<CommentProps> = ({ comment }) => {
             {moment(moment.unix(comment.timestamp.seconds)).fromNow()}
           </Typography>
         </Box>
-        <Box>{comment.body}</Box>
-        <Typography
+        <Box>{comment.deleted ? "[deleted]" : comment.body}</Box>
+        <Box
           sx={{
-            width: "fit-content",
-            mt: 0.15,
-            fontSize: "13px",
-            color: "primary.main",
-            fontWeight: "bold",
-            cursor: "pointer",
-            ...visible,
+            display: "flex",
+            gap: 2,
           }}
-          onClick={() => setReplyToggle(!replyToggle)}
         >
-          Reply
-        </Typography>
-        {replyToggle && (
+          <Typography
+            sx={{
+              width: "fit-content",
+              mt: 0.15,
+              fontSize: "13px",
+              color: "primary.main",
+              fontWeight: "bold",
+              cursor: "pointer",
+              ...visible,
+            }}
+            onClick={() => setReplyToggle(!replyToggle)}
+          >
+            Reply
+          </Typography>
+          <Typography
+            sx={{
+              width: "fit-content",
+              mt: 0.15,
+              fontSize: "13px",
+              color: "secondary.main",
+              fontWeight: "bold",
+              cursor: "pointer",
+              ...deleteVisible,
+            }}
+            onClick={() => openEditComment()}
+          >
+            Edit
+          </Typography>
+          <Typography
+            sx={{
+              width: "fit-content",
+              mt: 0.15,
+              fontSize: "13px",
+              color: "red",
+              fontWeight: "bold",
+              cursor: "pointer",
+              ...deleteVisible,
+            }}
+            onClick={() => deleteComment()}
+          >
+            Delete
+          </Typography>
+        </Box>
+        {(replyToggle || editToggle) && (
           <Box sx={{ mt: 1 }}>
             <TextField
               multiline
               minRows={3}
               sx={{ width: "60%" }}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              value={editToggle ? editComment : newComment}
+              onChange={
+                editToggle
+                  ? (e) => setEditComment(e.target.value)
+                  : (e) => setNewComment(e.target.value)
+              }
             />
             <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
               <Button
                 variant="contained"
                 size="small"
                 sx={{ color: "white" }}
-                onClick={() => handleAddNewComment()}
+                onClick={
+                  editToggle
+                    ? () => handleEditComment()
+                    : () => handleAddNewComment()
+                }
               >
                 Post
               </Button>
               <Button
                 variant="outlined"
                 size="small"
-                onClick={() => setReplyToggle(false)}
+                onClick={
+                  editToggle
+                    ? () => closeEditComment()
+                    : () => setReplyToggle(false)
+                }
                 sx={{ fontWeight: "bold" }}
               >
                 Cancel

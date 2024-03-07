@@ -16,6 +16,7 @@ interface NestedCommentsProps {
 const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) => state.comment.comments);
+  const commentsLoading = useAppSelector((state) => state.comment.loading);
 
   const [newComment, setNewComment] = useState("");
 
@@ -60,6 +61,19 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
           Post
         </Button>
       </Box>
+      {commentsLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            height: "10em",
+          }}
+        >
+          Loading...
+        </Box>
+      )}
       <Box
         sx={{
           mt: 2,

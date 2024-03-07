@@ -21,4 +21,5 @@ export interface CommentObj {
   createdByUid: string;
   displayName?: string;
   commentUid?: string;
+  deleted?: boolean;
 }
