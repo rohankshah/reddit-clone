@@ -12,12 +12,10 @@ const Users = () => {
   const currUser = useAppSelector((state) => state.auth.userInfo?.uid);
 
   useEffect(() => {
-    dispatch(fetchAllUsers());
+    if (!usersArr) {
+      dispatch(fetchAllUsers());
+    }
   }, []);
-
-  useEffect(() => {
-    console.log(usersArr);
-  }, [usersArr]);
 
   return (
     <div

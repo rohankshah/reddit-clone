@@ -40,6 +40,8 @@ const Navbar = () => {
       return () => navigate("/");
     } else if (item === "Users") {
       return () => navigate("/users");
+    } else if (item === "Profile") {
+      return () => navigate("/profile");
     } else if (item === "Logout") {
       return handleLogout;
     } else {

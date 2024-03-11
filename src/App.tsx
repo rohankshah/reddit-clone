@@ -12,6 +12,7 @@ import Feed from "./pages/Feed";
 import Post from "./pages/Post";
 import Users from "./pages/Users";
 import { getCurrUser, logInUser } from "./features/auth/authSlice";
+import Profile from "./pages/Profile";
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -62,6 +63,10 @@ const App = () => {
             <Route
               path="/users"
               element={currUser ? <Users /> : <LoginSignup />}
+            />
+            <Route
+              path="/profile"
+              element={currUser ? <Profile /> : <LoginSignup />}
             />
           </Routes>
         </BrowserRouter>

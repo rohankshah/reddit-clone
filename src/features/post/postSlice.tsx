@@ -8,8 +8,11 @@ import {
   getDoc,
   doc,
   updateDoc,
+  where,
+  query,
 } from "firebase/firestore";
 import { PostObj } from "../../types/types";
+import { RootState } from "../../app/store";
 
 interface PostState {
   postInfo: PostObj[] | undefined;
@@ -180,6 +183,22 @@ export const votePost = createAsyncThunk(
     } catch (error) {
       console.log(error);
     }
+  }
+);
+
+export const fetchCurrUserPosts = createAsyncThunk(
+  "post/fetchCurrUserPosts",
+  async (_, { getState }) => {
+    const state = getState() as RootState;
+    const postsRef = collection(db, "posts");
+    const currUid = state.auth.userInfo?.uid;
+    const q = query(postsRef, where("createdByUid", "==", currUid));
+    const postSnap = await getDocs(q);
+    const postsArr: PostObj[] = [];
+    postSnap.forEach((post) => {
+      postsArr.push(post.data() as PostObj);
+    });
+    return postsArr;
   }
 );
 
