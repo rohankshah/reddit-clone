@@ -27,7 +27,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({ replies, postId }) => {
     if (replies.length > 0) {
       dispatch(fetchAllComments(replies));
     }
-  }, []);
+  }, [dispatch, replies]);
 
   function handleAddNewComment() {
     dispatch(createNewComment({ comment: newComment, postId: postId }));

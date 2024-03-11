@@ -23,3 +23,10 @@ export interface CommentObj {
   commentUid?: string;
   deleted?: boolean;
 }
+
+export interface UserObj {
+  displayName: string;
+  email: string;
+  id: string;
+  followers?: string[];
+}

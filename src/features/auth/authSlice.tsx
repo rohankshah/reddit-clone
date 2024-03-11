@@ -41,6 +41,7 @@ export const createNewUser = createAsyncThunk(
     await setDoc(doc(db, "users", userObj.user.uid), {
       email: userObj.user.email,
       displayName: userObj.user.displayName,
+      followers: [],
     });
     return JSON.stringify(userObj.user);
   }

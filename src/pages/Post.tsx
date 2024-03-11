@@ -25,7 +25,7 @@ const Post = () => {
           setPost(data as PostObj);
         });
     }
-  }, []);
+  }, [dispatch, postId]);
 
   return (
     <div

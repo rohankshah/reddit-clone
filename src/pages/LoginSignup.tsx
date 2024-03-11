@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
   Grid,
@@ -13,7 +13,6 @@ import SocialInteraction from "../assets/social-interaction.svg";
 import {
   createNewUser,
   loginExistingUser,
-  getCurrUser,
   getAuthLoading,
   getAuthError,
   getAuthErrorMsg,
@@ -21,7 +20,6 @@ import {
 
 const LoginSignup = () => {
   const dispatch = useAppDispatch();
-  const currUser = useAppSelector(getCurrUser);
   const authLoading = useAppSelector(getAuthLoading);
   const authError = useAppSelector(getAuthError);
   const authErrorMsg = useAppSelector(getAuthErrorMsg);
@@ -31,10 +29,6 @@ const LoginSignup = () => {
   const [email, setEmail] = useState<string>("");
   const [pass, setPass] = useState<string>("");
   const [confirmPass, setConfirmPass] = useState<string>("");
-
-  useEffect(() => {
-    console.log(currUser);
-  }, [currUser]);
 
   const toggleLogin: () => void = () => {
     setIsLogin(!isLogin);

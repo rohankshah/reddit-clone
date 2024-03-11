@@ -43,7 +43,9 @@ const Feed = () => {
   const [newPostBody, setNewPostBody] = useState<string>("");
 
   useEffect(() => {
-    dispatch(fetchAllPosts());
+    if (!postArr) {
+      dispatch(fetchAllPosts());
+    }
   }, [dispatch]);
 
   function handleNewPostCreate() {

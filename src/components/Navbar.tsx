@@ -17,11 +17,13 @@ import {
 } from "@mui/material";
 import MenuIcon from "../assets/menu-icon.svg";
 import { logoutUser } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 const navItems = ["Feed", "Users", "Profile", "Logout"];
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -31,6 +33,18 @@ const Navbar = () => {
 
   function handleLogout() {
     dispatch(logoutUser());
+  }
+
+  function getOnClickForNav(item: string) {
+    if (item === "Feed") {
+      return () => navigate("/");
+    } else if (item === "Users") {
+      return () => navigate("/users");
+    } else if (item === "Logout") {
+      return handleLogout;
+    } else {
+      return () => {};
+    }
   }
 
   const drawer = (
@@ -84,7 +98,7 @@ const Navbar = () => {
                 <Button
                   key={item}
                   sx={{ color: "#fff" }}
-                  onClick={item === "Logout" ? () => handleLogout() : () => {}}
+                  onClick={getOnClickForNav(item)}
                 >
                   {item}
                 </Button>

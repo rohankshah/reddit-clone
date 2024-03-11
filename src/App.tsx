@@ -10,6 +10,7 @@ import "./App.css";
 import LoginSignup from "./pages/LoginSignup";
 import Feed from "./pages/Feed";
 import Post from "./pages/Post";
+import Users from "./pages/Users";
 import { getCurrUser, logInUser } from "./features/auth/authSlice";
 
 const App = () => {
@@ -57,6 +58,10 @@ const App = () => {
             <Route
               path="/post/:id"
               element={currUser ? <Post /> : <LoginSignup />}
+            />
+            <Route
+              path="/users"
+              element={currUser ? <Users /> : <LoginSignup />}
             />
           </Routes>
         </BrowserRouter>
