@@ -19,6 +19,7 @@ interface PostState {
   loading: boolean;
   error: boolean;
   errorMsg: string | undefined;
+  profilePostArr: PostObj[] | undefined;
 }
 
 const initialState: PostState = {
@@ -26,6 +27,7 @@ const initialState: PostState = {
   loading: false,
   error: false,
   errorMsg: "",
+  profilePostArr: undefined,
 };
 
 async function getCreatorNameFromId(uid: string) {
@@ -188,7 +190,7 @@ export const votePost = createAsyncThunk(
 
 export const fetchCurrUserPosts = createAsyncThunk(
   "post/fetchCurrUserPosts",
-  async (_, { getState }) => {
+  async (_, { getState, dispatch }) => {
     const state = getState() as RootState;
     const postsRef = collection(db, "posts");
     const currUid = state.auth.userInfo?.uid;
@@ -198,14 +200,19 @@ export const fetchCurrUserPosts = createAsyncThunk(
     postSnap.forEach((post) => {
       postsArr.push(post.data() as PostObj);
     });
-    return postsArr;
+    dispatch(postSlice.actions.setCurrProfilePosts(postsArr));
+    // return postsArr;
   }
 );
 
 export const postSlice = createSlice({
   name: "post",
   initialState,
-  reducers: {},
+  reducers: {
+    setCurrProfilePosts: (state, action) => {
+      state.profilePostArr = action.payload;
+    },
+  },
   extraReducers: (builders) => {
     builders.addCase(fetchAllPosts.pending, (state) => {
       state.loading = true;

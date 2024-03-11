@@ -1,21 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Box, Card, Typography } from "@mui/material";
 import { fetchCurrUserPosts } from "../features/post/postSlice";
-import { PostObj } from "../types/types";
 import moment from "moment";
 
 const ProfilePosts = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [postsArr, setPostsArr] = useState<PostObj[]>([]);
+  const postsArr = useAppSelector((state) => state.post.profilePostArr);
 
   useEffect(() => {
-    dispatch(fetchCurrUserPosts())
-      .unwrap()
-      .then((data) => setPostsArr(data));
+    if (!postsArr) {
+      dispatch(fetchCurrUserPosts());
+    }
   });
 
   return (
